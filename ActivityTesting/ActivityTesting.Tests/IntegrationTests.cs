@@ -78,11 +78,11 @@ public sealed class IntegrationTests
 
                 relevantActivities.Should().ContainSingle(x => x.OperationName == requestOutOperationName && x.DisplayName == requestOutOperationName);
 
-                relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && x.DisplayName == "POST /");
+                relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && x.DisplayName == $"POST {Config.EndpointName}");
                 relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && x.DisplayName == "POST");
                 relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && x.DisplayName == requestInOperationName);
 
-                relevantActivities.Should().ContainSingle(x => x.OperationName == Config.EndpointName)
+                relevantActivities.Should().ContainSingle(x => x.OperationName == Config.ActivityName)
                     .Which.TagObjects.Should().ContainKey(customTag).WhoseValue.Should().Be(customValue);
 
                 break;
@@ -92,12 +92,10 @@ public sealed class IntegrationTests
                 relevantActivities.Should().ContainSingle(x => x.OperationName == requestOutOperationName && x.DisplayName == requestOutOperationName);
 
                 // For some reason it's inconsistent whether the display name is "POST /" or "POST"
-                relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName)
-                    .Which.DisplayName.Should().BeOneOf($"POST {Config.EndpointName}", "POST");
-                
+                relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && (x.DisplayName == $"POST {Config.EndpointName}" || x.DisplayName == "POST"));
                 relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && x.DisplayName == requestInOperationName);
 
-                relevantActivities.Should().ContainSingle(x => x.OperationName == Config.EndpointName)
+                relevantActivities.Should().ContainSingle(x => x.OperationName == Config.ActivityName)
                     .Which.TagObjects.Should().ContainKey(customTag).WhoseValue.Should().Be(customValue);
 
                 break;
@@ -105,10 +103,9 @@ public sealed class IntegrationTests
                 relevantActivities.Should().HaveCount(2);
 
                 // For some reason it's inconsistent whether the display name is "POST /" or "POST"
-                relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName)
-                    .Which.DisplayName.Should().BeOneOf($"POST {Config.EndpointName}", "POST");
+                relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && (x.DisplayName == $"POST {Config.EndpointName}" || x.DisplayName == "POST"));
 
-                relevantActivities.Should().ContainSingle(x => x.OperationName == Config.EndpointName)
+                relevantActivities.Should().ContainSingle(x => x.OperationName == Config.ActivityName)
                     .Which.TagObjects.Should().ContainKey(customTag).WhoseValue.Should().Be(customValue);
 
                 break;
@@ -118,7 +115,7 @@ public sealed class IntegrationTests
                 relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName)
                     .Which.DisplayName.Should().Be(requestInOperationName);
 
-                relevantActivities.Should().ContainSingle(x => x.OperationName == Config.EndpointName)
+                relevantActivities.Should().ContainSingle(x => x.OperationName == Config.ActivityName)
                     .Which.TagObjects.Should().ContainKey(customTag).WhoseValue.Should().Be(customValue);
 
                 break;

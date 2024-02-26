@@ -54,7 +54,7 @@ ActivitySource apiActivitySource = new("api-thingy");
 
 app.MapPost(Config.EndpointName, (HttpContext httpContext) =>
 {
-    using var activity = apiActivitySource.StartActivity("my-api-endpoint")!;
+    using var activity = apiActivitySource.StartActivity(Config.ActivityName)!;
     
     activity.AddTag("my-tag", "my-value");
 
@@ -67,6 +67,7 @@ app.Run();
 public static class Config
 {
     public const string EndpointName = "my-api-endpoint";
+    public const string ActivityName = "my-api-endpoint-activity";
     public static bool AzureMonitorEnabled(IConfiguration config)
     {
         return config.GetValue<bool>("UseAzureMonitor");
