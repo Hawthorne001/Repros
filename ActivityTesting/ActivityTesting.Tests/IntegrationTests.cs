@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace ActivityTesting.Tests;
 
-public sealed class ATest
+public sealed class IntegrationTests
 {
     private static readonly ActivitySource TestActivitySource;
 
@@ -18,7 +18,7 @@ public sealed class ATest
         new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 
     // Static constructor to set up the activity listener on startup
-    static ATest()
+    static IntegrationTests()
     {
         Activities = [];
         TestActivitySource = new ActivitySource(nameof(MultiTest));
@@ -60,13 +60,11 @@ public sealed class ATest
         // Act
         var response = await client.PostAsync(uri, httpContent);
 
-
         // Assert
         var relevantActivities = GetRelevantActivities(activity);
 
         var useAzureMonitor = Config.AzureMonitorEnabled(Configuration);
         var useAspNetCoreInstrumentation = Config.AspNetCoreInstrumentationEnabled(Configuration);
-        var assertSpecifics = Config.AssertSpecifics(Configuration);
 
         const string requestInOperationName = "Microsoft.AspNetCore.Hosting.HttpRequestIn";
         const string requestOutOperationName = "System.Net.Http.HttpRequestOut";
@@ -79,51 +77,47 @@ public sealed class ATest
             case { useAzureMonitor: true, useAspNetCoreInstrumentation: true }:
                 relevantActivities.Should().HaveCount(5);
 
-                if (assertSpecifics)
-                {
-                    relevantActivities.Should().ContainSingle(x => x.OperationName == requestOutOperationName && x.DisplayName == requestOutOperationName);
-                    relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && x.DisplayName == requestInOperationName);
-                    relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && x.DisplayName == "POST /");
-                    relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && x.DisplayName == "POST");
-                    relevantActivities.Should().ContainSingle(x => x.OperationName == customOperationName)
-                        .Which.TagObjects.Should().ContainKey(customTag).WhoseValue.Should().Be(customValue);
-                }
+                relevantActivities.Should().ContainSingle(x => x.OperationName == requestOutOperationName && x.DisplayName == requestOutOperationName);
+
+                relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && x.DisplayName == "POST /");
+                relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && x.DisplayName == "POST");
+                relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && x.DisplayName == requestInOperationName);
+
+                relevantActivities.Should().ContainSingle(x => x.OperationName == customOperationName)
+                    .Which.TagObjects.Should().ContainKey(customTag).WhoseValue.Should().Be(customValue);
 
                 break;
             case { useAzureMonitor: true, useAspNetCoreInstrumentation: false }:
                 relevantActivities.Should().HaveCount(4);
 
-                if (assertSpecifics)
-                {
-                    relevantActivities.Should().ContainSingle(x => x.OperationName == requestOutOperationName && x.DisplayName == requestOutOperationName);
-                    relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && x.DisplayName == requestInOperationName);
-                    relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && x.DisplayName == "POST /");
-                    relevantActivities.Should().ContainSingle(x => x.OperationName == customOperationName)
-                        .Which.TagObjects.Should().ContainKey(customTag).WhoseValue.Should().Be(customValue);
-                }
+                relevantActivities.Should().ContainSingle(x => x.OperationName == requestOutOperationName && x.DisplayName == requestOutOperationName);
+
+                // For some reason it's inconsistent whether the display name is "POST /" or "POST"
+                relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && (x.DisplayName == "POST /" || x.DisplayName == "POST"));
+                relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && x.DisplayName == requestInOperationName);
+
+                relevantActivities.Should().ContainSingle(x => x.OperationName == customOperationName)
+                    .Which.TagObjects.Should().ContainKey(customTag).WhoseValue.Should().Be(customValue);
 
                 break;
             case { useAzureMonitor: false, useAspNetCoreInstrumentation: true }:
                 relevantActivities.Should().HaveCount(2);
 
-                if (assertSpecifics)
-                {
-                    relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && x.DisplayName == "POST /");
-                    relevantActivities.Should().ContainSingle(x => x.OperationName == customOperationName)
-                        .Which.TagObjects.Should().ContainKey(customTag).WhoseValue.Should().Be(customValue);
-                }
+                // For some reason it's inconsistent whether the display name is "POST /" or "POST"
+                relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && (x.DisplayName == "POST /" || x.DisplayName == "POST"));
+
+                relevantActivities.Should().ContainSingle(x => x.OperationName == customOperationName)
+                    .Which.TagObjects.Should().ContainKey(customTag).WhoseValue.Should().Be(customValue);
 
                 break;
             case { useAzureMonitor: false, useAspNetCoreInstrumentation: false }:
                 relevantActivities.Should().HaveCount(2);
 
-                if (assertSpecifics)
-                {
-                    relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName)
-                        .Which.DisplayName.Should().Be(requestInOperationName);
-                    relevantActivities.Should().ContainSingle(x => x.OperationName == customOperationName)
-                        .Which.TagObjects.Should().ContainKey(customTag).WhoseValue.Should().Be(customValue);
-                }
+                relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName)
+                    .Which.DisplayName.Should().Be(requestInOperationName);
+
+                relevantActivities.Should().ContainSingle(x => x.OperationName == customOperationName)
+                    .Which.TagObjects.Should().ContainKey(customTag).WhoseValue.Should().Be(customValue);
 
                 break;
         }

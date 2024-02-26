@@ -75,9 +75,4 @@ public static class Config
     {
         return configuration.GetValue<bool>("UseAspNetCoreInstrumentation");
     }
-
-    public static bool AssertSpecifics(IConfiguration configuration)
-    {
-        return configuration.GetValue<bool>("AssertSpecifics");
-    }
 }
