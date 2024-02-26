@@ -11,11 +11,11 @@ var otel = builder.Services.AddOpenTelemetry().WithTracing(x =>
 {
     if (useAspNetCoreInstrumentation)
     {
-        // This is well-behaved and does not cause concurrency issues,
+        // This is (almost) well-behaved and does not cause concurrency issues,
         // and simply mutates the existing "Microsoft.AspNetCore.Hosting.HttpRequestIn" activity
     
         // DisplayName: "Microsoft.AspNetCore.Hosting.HttpRequestIn",
-        // OperationName: "POST /",
+        // OperationName: "POST <endpoint>" OR "POST", (inconsistent)
         // 7 tags ("server.address", "http.request.method", "url.scheme", "url.path", "network.protocol.version", "http.route", and "http.response.status_code").
         x.AddAspNetCoreInstrumentation();
     }
@@ -52,7 +52,7 @@ var app = builder.Build();
 
 ActivitySource apiActivitySource = new("api-thingy");
 
-app.MapPost("/", (HttpContext httpContext) =>
+app.MapPost(Config.EndpointName, (HttpContext httpContext) =>
 {
     using var activity = apiActivitySource.StartActivity("my-api-endpoint")!;
     
@@ -66,6 +66,7 @@ app.Run();
 
 public static class Config
 {
+    public const string EndpointName = "my-api-endpoint";
     public static bool AzureMonitorEnabled(IConfiguration config)
     {
         return config.GetValue<bool>("UseAzureMonitor");

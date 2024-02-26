@@ -55,7 +55,7 @@ public sealed class IntegrationTests
 
         var factory = new WebApplicationFactory<ApiAssemblyMarker>();
         using var client = factory.CreateClient();
-        var uri = new Uri(client.BaseAddress!, "");
+        var uri = new Uri(client.BaseAddress!, Config.EndpointName); 
 
         // Act
         var response = await client.PostAsync(uri, httpContent);
@@ -68,7 +68,6 @@ public sealed class IntegrationTests
 
         const string requestInOperationName = "Microsoft.AspNetCore.Hosting.HttpRequestIn";
         const string requestOutOperationName = "System.Net.Http.HttpRequestOut";
-        const string customOperationName = "my-api-endpoint";
         const string customTag = "my-tag";
         const string customValue = "my-value";
 
@@ -83,7 +82,7 @@ public sealed class IntegrationTests
                 relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && x.DisplayName == "POST");
                 relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && x.DisplayName == requestInOperationName);
 
-                relevantActivities.Should().ContainSingle(x => x.OperationName == customOperationName)
+                relevantActivities.Should().ContainSingle(x => x.OperationName == Config.EndpointName)
                     .Which.TagObjects.Should().ContainKey(customTag).WhoseValue.Should().Be(customValue);
 
                 break;
@@ -93,10 +92,12 @@ public sealed class IntegrationTests
                 relevantActivities.Should().ContainSingle(x => x.OperationName == requestOutOperationName && x.DisplayName == requestOutOperationName);
 
                 // For some reason it's inconsistent whether the display name is "POST /" or "POST"
-                relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && (x.DisplayName == "POST /" || x.DisplayName == "POST"));
+                relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName)
+                    .Which.DisplayName.Should().BeOneOf($"POST {Config.EndpointName}", "POST");
+                
                 relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && x.DisplayName == requestInOperationName);
 
-                relevantActivities.Should().ContainSingle(x => x.OperationName == customOperationName)
+                relevantActivities.Should().ContainSingle(x => x.OperationName == Config.EndpointName)
                     .Which.TagObjects.Should().ContainKey(customTag).WhoseValue.Should().Be(customValue);
 
                 break;
@@ -104,9 +105,10 @@ public sealed class IntegrationTests
                 relevantActivities.Should().HaveCount(2);
 
                 // For some reason it's inconsistent whether the display name is "POST /" or "POST"
-                relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName && (x.DisplayName == "POST /" || x.DisplayName == "POST"));
+                relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName)
+                    .Which.DisplayName.Should().BeOneOf($"POST {Config.EndpointName}", "POST");
 
-                relevantActivities.Should().ContainSingle(x => x.OperationName == customOperationName)
+                relevantActivities.Should().ContainSingle(x => x.OperationName == Config.EndpointName)
                     .Which.TagObjects.Should().ContainKey(customTag).WhoseValue.Should().Be(customValue);
 
                 break;
@@ -116,7 +118,7 @@ public sealed class IntegrationTests
                 relevantActivities.Should().ContainSingle(x => x.OperationName == requestInOperationName)
                     .Which.DisplayName.Should().Be(requestInOperationName);
 
-                relevantActivities.Should().ContainSingle(x => x.OperationName == customOperationName)
+                relevantActivities.Should().ContainSingle(x => x.OperationName == Config.EndpointName)
                     .Which.TagObjects.Should().ContainKey(customTag).WhoseValue.Should().Be(customValue);
 
                 break;
