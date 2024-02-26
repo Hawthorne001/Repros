@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using ActivityTesting.API;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using OpenTelemetry.Trace;
 
@@ -63,18 +64,21 @@ app.MapPost(Config.EndpointName, (HttpContext httpContext) =>
 
 app.Run();
 
-
-public static class Config
+namespace ActivityTesting.API
 {
-    public const string EndpointName = "my-api-endpoint";
-    public const string ActivityName = "my-api-endpoint-activity";
-    public static bool AzureMonitorEnabled(IConfiguration config)
+    public static class Config
     {
-        return config.GetValue<bool>("UseAzureMonitor");
-    }
+        public const string EndpointName = "my-api-endpoint";
+        public const string ActivityName = "my-api-endpoint-activity";
+        public static bool AzureMonitorEnabled(IConfiguration config)
+        {
+            return config.GetValue<bool>("UseAzureMonitor");
+        }
 
-    public static bool AspNetCoreInstrumentationEnabled(IConfiguration configuration)
-    {
-        return configuration.GetValue<bool>("UseAspNetCoreInstrumentation");
+        public static bool AspNetCoreInstrumentationEnabled(IConfiguration configuration)
+        {
+            return configuration.GetValue<bool>("UseAspNetCoreInstrumentation");
+        }
     }
+    public sealed class ApiAssemblyMarker;
 }
