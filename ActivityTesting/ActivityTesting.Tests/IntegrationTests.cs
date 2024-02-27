@@ -28,11 +28,12 @@ public sealed class IntegrationTests
         List<Activity> activities = [];
 
         var factory = new WebApplicationFactory<ApiAssemblyMarker>();
-        var inProcessActivitySource = factory.Services.GetRequiredService<ActivitySource>();
+        var builtInActivitySource = factory.Services.GetRequiredService<ActivitySource>();
+        var customActivitySource = factory.Services.GetRequiredKeyedService<ActivitySource>(Config.ActivitySourceKey);
         
         var listener = new ActivityListener();
         listener.Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData;
-        listener.ShouldListenTo = source => source == inProcessActivitySource;
+        listener.ShouldListenTo = source => source == builtInActivitySource || source == customActivitySource;
         listener.ActivityStarted = a =>
         {
             lock (activities)
@@ -42,7 +43,7 @@ public sealed class IntegrationTests
         };
         ActivitySource.AddActivityListener(listener);
         
-        using var activity = inProcessActivitySource.StartActivity("my-activity")!;
+        using var activity = customActivitySource.StartActivity("my-activity")!;
         var activityId = activity.Id;
         var httpContent = new StringContent("some content");
         httpContent.Headers.TryAddWithoutValidation("traceparent", activityId);

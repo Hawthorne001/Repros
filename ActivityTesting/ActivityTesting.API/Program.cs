@@ -5,8 +5,9 @@ using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
-        var useAzureMonitor = Config.AzureMonitorEnabled(builder.Configuration);
-        var useAspNetCoreInstrumentation = Config.AspNetCoreInstrumentationEnabled(builder.Configuration);
+builder.Services.AddKeyedSingleton(Config.ActivitySourceKey, new ActivitySource(nameof(ActivityTesting)));
+var useAzureMonitor = Config.AzureMonitorEnabled(builder.Configuration);
+var useAspNetCoreInstrumentation = Config.AspNetCoreInstrumentationEnabled(builder.Configuration);
 
 var otel = builder.Services.AddOpenTelemetry().WithTracing(x =>
 {
@@ -51,12 +52,10 @@ if (useAzureMonitor)
 
 var app = builder.Build();
 
-app.MapPost(Config.EndpointName, (HttpContext httpContext) =>
+app.MapPost(Config.EndpointName, ([FromKeyedServices(Config.ActivitySourceKey)] ActivitySource activitySource) =>
 {
-    var activitySource = httpContext.RequestServices.GetRequiredService<ActivitySource>();
-    using var activity = activitySource.StartActivity(Config.ActivityName)!;
-    
-    activity.AddTag("my-tag", "my-value");
+    // using var activity = activitySource.StartActivity(Config.ActivityName);
+    // activity?.AddTag("my-tag", "my-value");
 
     return "Hello World!";
 });
@@ -67,8 +66,10 @@ namespace ActivityTesting.API
 {
     public static class Config
     {
+        public const string ActivitySourceKey = "ActivityTestingActivitySource";
         public const string EndpointName = "my-api-endpoint";
         public const string ActivityName = "my-api-endpoint-activity";
+        
         public static bool AzureMonitorEnabled(IConfiguration config)
         {
             return config.GetValue<bool>("UseAzureMonitor");
