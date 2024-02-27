@@ -51,11 +51,10 @@ if (useAzureMonitor)
 
 var app = builder.Build();
 
-ActivitySource apiActivitySource = new("api-thingy");
-
 app.MapPost(Config.EndpointName, (HttpContext httpContext) =>
 {
-    using var activity = apiActivitySource.StartActivity(Config.ActivityName)!;
+    var activitySource = httpContext.RequestServices.GetRequiredService<ActivitySource>();
+    using var activity = activitySource.StartActivity(Config.ActivityName)!;
     
     activity.AddTag("my-tag", "my-value");
 
