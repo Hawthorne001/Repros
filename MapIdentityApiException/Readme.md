@@ -1,4 +1,6 @@
-﻿# How to run:
+[Link to issue on dotnet/aspnetcore](https://github.com/dotnet/aspnetcore/issues/50037)
+ 
+ # How to run:
 
 1. docker compose up
 2. dotnet run
