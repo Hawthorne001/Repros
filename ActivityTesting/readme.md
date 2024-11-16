@@ -1,5 +1,7 @@
 ### Activity Testing
 
+[Link to issue on dotnet/runtime](https://github.com/dotnet/runtime/issues/98854)
+
 A simple repro of how unit testing the `Activity` class in Asp.Net Core 8 - in conjunction with OpenTelemetry and especially Azure Monitor - (seemingly) has issues. 
 
 

@@ -1,5 +1,7 @@
 ### RequestDelegateGenerator requires the object to implement `IParsable<T>` or otherwise have a `TryParse` method.
 
+[Link to GitHub issue on dotnet/aspnetcore](https://github.com/dotnet/aspnetcore/issues/54130)
+
 ## Steps to reproduce
 
 1. Clone the repository
