@@ -17,99 +17,101 @@ public sealed partial class ClassInt;
 
 public interface IService
 {
-    string GetStructString(StructString value);
-    string GetClassString(ClassString value);
-    string GetBothStrings(ClassString value, StructString other);
+    void GetStructString(StructString value);
+    void GetClassString(ClassString value);
+    void GetBothStrings(ClassString value, StructString other);
     
-    string GetStructInt(StructInt value);
-    string GetClassInt(ClassInt value);
-    string GetBothInts(ClassInt value, StructInt other);
+    void GetStructInt(StructInt value);
+    void GetClassInt(ClassInt value);
+    void GetBothInts(ClassInt value, StructInt other);
 }
 
 public class UnitTest1
 {
+    private IService _sut = Substitute.For<IService>();
+    
     // This works.
     [Fact]
     public void ClassString_ArgAny()
     {
-        Substitute.For<IService>().GetClassString(Arg.Any<ClassString>()).Returns("abc");
+        _sut.GetClassString(Arg.Any<ClassString>());
     }
 
     // This doesn't work.
     [Fact]
     public void StructString_ArgAny()
     {
-        Substitute.For<IService>().GetStructString(Arg.Any<StructString>()).Returns("abc");
+        _sut.GetStructString(Arg.Any<StructString>());
     }
     
     // This doesn't work.
     [Fact]
     public void BothStrings_ArgAny()
     {
-        Substitute.For<IService>().GetBothStrings(Arg.Any<ClassString>(),Arg.Any<StructString>()).Returns("abc");
+        _sut.GetBothStrings(Arg.Any<ClassString>(),Arg.Any<StructString>());
     }
     
     // This works.
     [Fact]
     public void ClassString_ArgIs()
     {
-        Substitute.For<IService>().GetClassString(Arg.Is<ClassString>(_ => true)).Returns("abc");
+        _sut.GetClassString(Arg.Is<ClassString>(_ => true));
     }
 
     // This doesn't work.
     [Fact]
     public void StructString_ArgIs()
     {
-        Substitute.For<IService>().GetStructString(Arg.Is<StructString>(_ => true)).Returns("abc");
+        _sut.GetStructString(Arg.Is<StructString>(_ => true));
     }
     
     // This doesn't work.
     [Fact]
     public void BothStrings_ArgIs()
     {
-        Substitute.For<IService>().GetBothStrings(Arg.Is<ClassString>(_ => true),Arg.Is<StructString>(_ => true)).Returns("abc");
+        _sut.GetBothStrings(Arg.Is<ClassString>(_ => true),Arg.Is<StructString>(_ => true));
     }
     
     // This works.
     [Fact]
     public void ClassInt_ArgAny()
     {
-        Substitute.For<IService>().GetClassInt(Arg.Any<ClassInt>()).Returns("abc");
+        _sut.GetClassInt(Arg.Any<ClassInt>());
     }
 
     // This doesn't work.
     [Fact]
     public void StructInt_ArgAny()
     {
-        Substitute.For<IService>().GetStructInt(Arg.Any<StructInt>()).Returns("abc");
+        _sut.GetStructInt(Arg.Any<StructInt>());
     }
     
     // This doesn't work.
     [Fact]
     public void BothInts_ArgAny()
     {
-        Substitute.For<IService>().GetBothInts(Arg.Any<ClassInt>(),Arg.Any<StructInt>()).Returns("abc");
+        _sut.GetBothInts(Arg.Any<ClassInt>(),Arg.Any<StructInt>());
     }
     
     // This works.
     [Fact]
     public void ClassInt_ArgIs()
     {
-        Substitute.For<IService>().GetClassInt(Arg.Is<ClassInt>(_ => true)).Returns("abc");
+        _sut.GetClassInt(Arg.Is<ClassInt>(_ => true));
     }
 
     // This doesn't work.
     [Fact]
     public void StructInt_ArgIs()
     {
-        Substitute.For<IService>().GetStructInt(Arg.Is<StructInt>(_ => true)).Returns("abc");
+        _sut.GetStructInt(Arg.Is<StructInt>(_ => true));
     }
     
     // This doesn't work.
     [Fact]
     public void BothInts_ArgIs()
     {
-        Substitute.For<IService>().GetBothInts(Arg.Is<ClassInt>(_ => true),Arg.Is<StructInt>(_ => true)).Returns("abc");
+        _sut.GetBothInts(Arg.Is<ClassInt>(_ => true),Arg.Is<StructInt>(_ => true));
     }
     
 }
