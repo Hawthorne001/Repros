@@ -5,6 +5,8 @@ now **eagerly loads the Data Protection key ring** (reads the key store) instead
 first `Protect`/`Unprotect`. On **.NET 10** the read is **lazy** — `CreateProtector` returns without
 touching the store, and the read happens on first use.
 
+**Filed upstream:** [dotnet/aspnetcore#67447](https://github.com/dotnet/aspnetcore/issues/67447)
+
 The repro is a plain console app — no web host, no antiforgery — just a DI container:
 `AddDataProtection()` → resolve `IDataProtectionProvider` → `CreateProtector("repro")` → `Protect("hello")`.
 An `IXmlRepository` that throws when read makes both *that* and *where* the key store is read obvious.
@@ -80,4 +82,4 @@ Unhandled exception. System.Security.Cryptography.CryptographicException: An err
 (returns the protector without reading the ring) and
 [main](https://github.com/dotnet/aspnetcore/blob/main/src/DataProtection/DataProtection/src/KeyManagement/KeyRingBasedDataProtectionProvider.cs)
 (calls `_keyRingProvider.GetCurrentKeyRing()` eagerly). Not listed in the .NET 11 / ASP.NET Core 11
-breaking-change docs as of 2026-06-26.
+breaking-change docs as of 2026-06-26. Reported as [dotnet/aspnetcore#67447](https://github.com/dotnet/aspnetcore/issues/67447).
